@@ -1,7 +1,22 @@
 #!/bin/bash
 
+verbose=0
+
+while getopts hv opt; do
+  case "$opt" in
+  h)
+    echo "Opens this repo in a web browser (using "origin" remote)"
+    exit 0
+    ;;
+  v) verbose=1
+    ;;
+  esac
+done
+
 REPO=`git remote -v | awk '/origin.*(fetch)/ {print  $2}' | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`
 
-echo "opening $REPO"
+if [ $verbose -ge 1 ]; then
+  echo "opening $REPO"
+fi
 
 open $REPO
