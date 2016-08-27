@@ -5,7 +5,11 @@ verbose=0
 while getopts hv opt; do
   case "$opt" in
   h)
-    echo "Hello there! This opens this repo in a web browser (using "origin" remote)"
+    echo ""
+    echo "  Opens this repo in your default web browser (using "origin" remote)"
+    echo ""
+    echo "  -v    run verbosely"
+    echo "  -h    print this message"
     exit 0
     ;;
   v) verbose=1
