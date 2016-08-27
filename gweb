@@ -1,0 +1,5 @@
+#!/bin/bash
+
+REPO=http://github.com/isaachelbling/gweb
+
+open $REPO
