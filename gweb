@@ -38,6 +38,11 @@ HOST=`echo $REMOTE | sed 's/^git@//' | sed 's/\..*//'`
 
 CURRENT_BRANCH=`git branch -l | grep \* | sed 's/\* //'`
 
+
+if [ "$GIVEN_BRANCH" == "." ]; then
+  GIVEN_BRANCH=$CURRENT_BRANCH
+fi
+
 if [ "$GIVEN_BRANCH" ]; then
   if [ $HOST == "github" ]; then
     BRANCH_HANDLE="/tree/$GIVEN_BRANCH"
