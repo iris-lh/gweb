@@ -1,2 +1,2 @@
 # gweb
-Gweb opens the current repository on github.com in your browser.
+Gweb opens the current repository on Github or Bitbucket in your default browser.
