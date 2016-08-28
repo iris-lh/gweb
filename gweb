@@ -2,7 +2,9 @@
 
 
 
-help_message="
+help_message() {
+  cat <<EOF
+
   Usage: gweb [-v] [-h] [branch]
 
    Help: Open the current git repository on Github or Bitbucket 
@@ -10,25 +12,30 @@ help_message="
 
 Options:
       -v            run verbosely
-      -h, --help    print this message"
+      -h            print this message
 
+EOF
+}
 
 
 verbose=0
 
-while getopts hv"-help" opt; do
+while getopts hv opt; do
   case "$opt" in
-  h) echo -e "$help_message"; exit 0
+  h)
+    help_message
+    exit 0
     ;;
-  v) verbose=1; shift;
+  v)
+    verbose=1
+    shift
     ;;
-  \?) echo -e "$help_message"; exit 0
+  \?)
+    help_message
+    exit 0
     ;;
   esac
 done
-
-for last; do true; done
-GIVEN_BRANCH=$last
 
 
 
@@ -39,19 +46,26 @@ HOST=`echo $REMOTE | sed 's/^git@//' | sed 's/\..*//'`
 CURRENT_BRANCH=`git branch -l | grep \* | sed 's/\* //'`
 
 
+
+# grab last variable
+for last; do true; done
+GIVEN_BRANCH=$last
+
 if [ "$GIVEN_BRANCH" == "." ]; then
   GIVEN_BRANCH=$CURRENT_BRANCH
 fi
 
 if [ "$GIVEN_BRANCH" ]; then
   if [ $HOST == "github" ]; then
-    BRANCH_HANDLE="/tree/$GIVEN_BRANCH"
+    BRANCH_PATH="/tree/$GIVEN_BRANCH"
   elif [ $HOST == "bitbucket" ]; then
-    BRANCH_HANDLE="/branch/$GIVEN_BRANCH"
+    BRANCH_PATH="/branch/$GIVEN_BRANCH"
   fi
 fi
 
-URL="`echo $REMOTE | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`$BRANCH_HANDLE"
+
+
+URL="`echo $REMOTE | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`$BRANCH_PATH"
 
 if [ $REMOTE ]; then
   if [ $verbose -ge 1 ]; then
@@ -59,16 +73,17 @@ if [ $REMOTE ]; then
   fi
 
   if [ "$DEBUG" != "" ]; then
-    echo ""
-    echo "    Args: $@"
-    echo "Given Branch: $GIVEN_BRANCH"
-    echo "Branch Handle: $BRANCH_HANDLE"
-    echo ""
-    echo "  Remote: $REMOTE"
-    echo "    Host: $HOST"
-    echo "  Branch: $CURRENT_BRANCH"
-    echo ""
-    echo "     URL: $URL"
+    cat <<EOF
+         Args: $@
+ Given Branch: $GIVEN_BRANCH
+Branch Handle: $BRANCH_PATH
+
+       Remote: $REMOTE
+         Host: $HOST
+       Branch: $CURRENT_BRANCH
+
+          URL: $URL
+EOF
   fi
 
   if [ "$DRY_RUN" != true ]; then
