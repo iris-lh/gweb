@@ -19,8 +19,9 @@ done
 
 REPO=`git remote -v | awk '/origin.*(fetch)/ {print  $2}' | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`
 
-if [ $verbose -ge 1 ]; then
-  echo "opening $REPO"
+if [ $REPO ]; then
+  if [ $verbose -ge 1 ]; then
+    echo "opening $REPO"
+  fi
+  open $REPO
 fi
-
-open $REPO
