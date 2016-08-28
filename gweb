@@ -57,16 +57,21 @@ if [ $REMOTE ]; then
   if [ $verbose -ge 1 ]; then
     echo -e "\n  Opening $URL"
   fi
-  echo ""
-  echo "    Args: $@"
-  echo "Last Arg: $GIVEN_BRANCH"
-  echo "Branch Handle: $BRANCH_HANDLE"
-  echo ""
-  echo "  Remote: $REMOTE"
-  echo "    Host: $HOST"
-  echo "  Branch: $BRANCH"
-  echo ""
-  echo "     URL: $URL"
 
-  open $URL
+  if [ "$DEBUG" != "" ]; then
+    echo ""
+    echo "    Args: $@"
+    echo "Given Branch: $GIVEN_BRANCH"
+    echo "Branch Handle: $BRANCH_HANDLE"
+    echo ""
+    echo "  Remote: $REMOTE"
+    echo "    Host: $HOST"
+    echo "  Branch: $CURRENT_BRANCH"
+    echo ""
+    echo "     URL: $URL"
+  fi
+
+  if [ "$DRY_RUN" != true ]; then
+    open $URL
+  fi
 fi
