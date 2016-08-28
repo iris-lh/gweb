@@ -2,15 +2,20 @@
 
 verbose=0
 
-while getopts hv opt; do
+help_message="
+  Usage: gweb [-v] [-h]
+
+   Help: Open the current git repository on Github or Bitbucket in your default browser. (using 'origin' remote)
+
+Options:
+      -v            run verbosely
+      -h, --help    print this message
+"
+
+while getopts hv"-help" opt; do
   case "$opt" in
   h)
-    echo ""
-    echo "  Opens this repo in your default web browser (using 'origin' remote)"
-    echo ""
-    echo "  -v    run verbosely"
-    echo "  -h    print this message"
-    exit 0
+    echo -e "$help_message"; exit 0
     ;;
   v) verbose=1
     ;;
@@ -21,7 +26,7 @@ REPO=`git remote -v | awk '/origin.*(fetch)/ {print  $2}' | sed 's/:/\//' | sed 
 
 if [ $REPO ]; then
   if [ $verbose -ge 1 ]; then
-    echo "opening $REPO"
+    echo -e "\nOpening $REPO"
   fi
   open $REPO
 fi
