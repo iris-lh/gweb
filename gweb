@@ -1,32 +1,67 @@
 #!/bin/bash
 
-verbose=0
+
 
 help_message="
-  Usage: gweb [-v] [-h]
+  Usage: gweb [-v] [-h] [branch]
 
-   Help: Open the current git repository on Github or Bitbucket in your default browser. (using 'origin' remote)
+   Help: Open the current git repository on Github or Bitbucket 
+         in your default browser. (using 'origin' remote)
 
 Options:
       -v            run verbosely
-      -h, --help    print this message
-"
+      -h, --help    print this message"
+
+
+
+verbose=0
 
 while getopts hv"-help" opt; do
   case "$opt" in
-  h)
-    echo -e "$help_message"; exit 0
+  h) echo -e "$help_message"; exit 0
     ;;
-  v) verbose=1
+  v) verbose=1; shift;
+    ;;
+  \?) echo -e "$help_message"; exit 0
     ;;
   esac
 done
 
-REPO=`git remote -v | awk '/origin.*(fetch)/ {print  $2}' | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`
+for last; do true; done
+GIVEN_BRANCH=$last
 
-if [ $REPO ]; then
-  if [ $verbose -ge 1 ]; then
-    echo -e "\nOpening $REPO"
+
+
+REMOTE=`git remote -v | awk '/origin.*(fetch)/ {print  $2}'`
+
+HOST=`echo $REMOTE | sed 's/^git@//' | sed 's/\..*//'`
+
+CURRENT_BRANCH=`git branch -l | grep \* | sed 's/\* //'`
+
+if [ "$GIVEN_BRANCH" ]; then
+  if [ $HOST == "github" ]; then
+    BRANCH_HANDLE="/tree/$GIVEN_BRANCH"
+  elif [ $HOST == "bitbucket" ]; then
+    BRANCH_HANDLE="/branch/$GIVEN_BRANCH"
   fi
-  open $REPO
+fi
+
+URL="`echo $REMOTE | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`$BRANCH_HANDLE"
+
+if [ $REMOTE ]; then
+  if [ $verbose -ge 1 ]; then
+    echo -e "\n  Opening $URL"
+  fi
+  echo ""
+  echo "    Args: $@"
+  echo "Last Arg: $GIVEN_BRANCH"
+  echo "Branch Handle: $BRANCH_HANDLE"
+  echo ""
+  echo "  Remote: $REMOTE"
+  echo "    Host: $HOST"
+  echo "  Branch: $BRANCH"
+  echo ""
+  echo "     URL: $URL"
+
+  open $URL
 fi
