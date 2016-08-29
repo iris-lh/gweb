@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+ALL_ARGS=$@
 
 help_message() {
   cat <<EOF
@@ -17,6 +17,21 @@ Options:
 EOF
 }
 
+debug_message() {
+  if [ "$DEBUG" != "" ]; then
+    cat <<EOF
+         Args: $ALL_ARGS
+ Given Branch: $GIVEN_BRANCH
+Branch Handle: $BRANCH_PATH
+
+       Remote: $REMOTE
+         Host: $HOST
+       Branch: $CURRENT_BRANCH
+
+          URL: $URL
+EOF
+  fi
+}
 
 verbose=0
 
@@ -72,19 +87,7 @@ if [ $REMOTE ]; then
     echo -e "\n  Opening $URL"
   fi
 
-  if [ "$DEBUG" != "" ]; then
-    cat <<EOF
-         Args: $@
- Given Branch: $GIVEN_BRANCH
-Branch Handle: $BRANCH_PATH
-
-       Remote: $REMOTE
-         Host: $HOST
-       Branch: $CURRENT_BRANCH
-
-          URL: $URL
-EOF
-  fi
+  debug_message
 
   if [ "$DRY_RUN" != true ]; then
     open $URL
