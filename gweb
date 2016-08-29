@@ -1,6 +1,85 @@
 #!/bin/bash
 
-ALL_ARGS=$@
+SCRIPT_ARGS=$@
+
+main() {
+
+  process_options $SCRIPT_ARGS
+  read_git_environment
+  find_target_branch
+  set_branch_path
+  build_url
+
+  if [ $REMOTE ]; then
+    verbose_message
+    debug_message
+    open_url
+  fi
+
+}
+
+process_options() {
+  verbose=0
+
+  while getopts hv opt; do
+    case "$opt" in
+    h)
+      help_message
+      exit 0
+      ;;
+    v)
+      verbose=1
+      shift
+      ;;
+    \?)
+      help_message
+      exit 0
+      ;;
+    esac
+  done
+
+  # last variable is the desired branch
+  for last; do true; done
+  GIVEN_BRANCH=$last
+}
+
+read_git_environment() {
+  REMOTE=`git remote -v | awk '/origin.*(fetch)/ {print  $2}'`
+  HOST=`echo $REMOTE | sed 's/^git@//' | sed 's|^https:\/\/||' | sed 's/\..*//'`
+  CURRENT_BRANCH=`git branch -l | grep \* | sed 's/\* //'`
+}
+
+find_target_branch() {
+  if [ "$GIVEN_BRANCH" == "." ]; then
+    GIVEN_BRANCH=$CURRENT_BRANCH
+  fi
+}
+
+set_branch_path() {
+  if [ "$GIVEN_BRANCH" ]; then
+    if [ $HOST == "github" ]; then
+      BRANCH_PATH="/tree/$GIVEN_BRANCH"
+    elif [ $HOST == "bitbucket" ]; then
+      BRANCH_PATH="/branch/$GIVEN_BRANCH"
+    fi
+  fi
+}
+
+build_url() {
+  URL="`echo $REMOTE | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`$BRANCH_PATH"
+}
+
+open_url() {
+  if [ "$DRY_RUN" != true ]; then
+    open $URL
+  fi
+}
+
+verbose_message() {
+  if [ $verbose -ge 1 ]; then
+    echo -e "\n  Opening $URL"
+  fi
+}
 
 help_message() {
   cat <<EOF
@@ -20,76 +99,17 @@ EOF
 debug_message() {
   if [ "$DEBUG" != "" ]; then
     cat <<EOF
-         Args: $ALL_ARGS
- Given Branch: $GIVEN_BRANCH
-Branch Handle: $BRANCH_PATH
+        Args: $SCRIPT_ARGS
+Given Branch: $GIVEN_BRANCH
+ Branch Path: $BRANCH_PATH
 
-       Remote: $REMOTE
-         Host: $HOST
-       Branch: $CURRENT_BRANCH
+      Remote: $REMOTE
+        Host: $HOST
+      Branch: $CURRENT_BRANCH
 
-          URL: $URL
+         URL: $URL
 EOF
   fi
 }
 
-verbose=0
-
-while getopts hv opt; do
-  case "$opt" in
-  h)
-    help_message
-    exit 0
-    ;;
-  v)
-    verbose=1
-    shift
-    ;;
-  \?)
-    help_message
-    exit 0
-    ;;
-  esac
-done
-
-
-
-REMOTE=`git remote -v | awk '/origin.*(fetch)/ {print  $2}'`
-
-HOST=`echo $REMOTE | sed 's/^git@//' | sed 's/\..*//'`
-
-CURRENT_BRANCH=`git branch -l | grep \* | sed 's/\* //'`
-
-
-
-# grab last variable
-for last; do true; done
-GIVEN_BRANCH=$last
-
-if [ "$GIVEN_BRANCH" == "." ]; then
-  GIVEN_BRANCH=$CURRENT_BRANCH
-fi
-
-if [ "$GIVEN_BRANCH" ]; then
-  if [ $HOST == "github" ]; then
-    BRANCH_PATH="/tree/$GIVEN_BRANCH"
-  elif [ $HOST == "bitbucket" ]; then
-    BRANCH_PATH="/branch/$GIVEN_BRANCH"
-  fi
-fi
-
-
-
-URL="`echo $REMOTE | sed 's/:/\//' | sed 's/^git@/https:\/\//' | sed 's/.git$//' | sed 's/^https\/\/\//https:\/\//'`$BRANCH_PATH"
-
-if [ $REMOTE ]; then
-  if [ $verbose -ge 1 ]; then
-    echo -e "\n  Opening $URL"
-  fi
-
-  debug_message
-
-  if [ "$DRY_RUN" != true ]; then
-    open $URL
-  fi
-fi
+main $SCRIPT_ARGS
