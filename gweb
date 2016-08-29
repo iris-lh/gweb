@@ -77,21 +77,21 @@ open_url() {
 
 verbose_message() {
   if [ $verbose -ge 1 ]; then
-    echo -e "\n  Opening $URL"
+    echo -e "\n  Opening $URL\n"
   fi
 }
 
 help_message() {
   cat <<EOF
 
-  Usage: gweb [-v] [-h] [branch]
+    Usage: gweb [-v] [-h] [branch]
 
-   Help: Open the current git repository on Github or Bitbucket 
-         in your default browser. (using 'origin' remote)
+     Help: Open the current git repository on Github or Bitbucket 
+           in your default browser. (using 'origin' remote)
 
-Options:
-      -v            run verbosely
-      -h            print this message
+  Options:
+        -v            run verbosely
+        -h            print this message
 
 EOF
 }
@@ -99,15 +99,15 @@ EOF
 debug_message() {
   if [ "$DEBUG" != "" ]; then
     cat <<EOF
-        Args: $SCRIPT_ARGS
-Given Branch: $GIVEN_BRANCH
- Branch Path: $BRANCH_PATH
+          Args: $SCRIPT_ARGS
+  Given Branch: $GIVEN_BRANCH
+   Branch Path: $BRANCH_PATH
 
-      Remote: $REMOTE
-        Host: $HOST
-      Branch: $CURRENT_BRANCH
+        Remote: $REMOTE
+          Host: $HOST
+        Branch: $CURRENT_BRANCH
 
-         URL: $URL
+           URL: $URL
 EOF
   fi
 }
